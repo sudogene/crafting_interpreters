@@ -75,8 +75,16 @@ class Scanner {
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
             case '/':
+                // Slash slash comment: // ...
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd()) advance();
+                // Slash asterisk comment: /* ... */
+                } else if (match('*')) {
+                    while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) advance();
+                    if (!isAtEnd()) {
+                        // Consume the '*' and '/'
+                        advance(); advance();
+                    }
                 } else {
                     addToken(SLASH);
                 }
@@ -173,12 +181,12 @@ class Scanner {
                 c == '_';
     }
 
-    private boolean isAlphaNumeric(char c) {
-        return isAlpha(c) || isDigit(c);
-    }
-
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private boolean isAtEnd() {
